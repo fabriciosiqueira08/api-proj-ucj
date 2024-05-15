@@ -1,0 +1,10 @@
+teste.py
+*.xlsx
+ConsultaAPI.py
+.env
+__pycache__/
+Output/
+setup.py
+*.iss
+build/
+*.ico
