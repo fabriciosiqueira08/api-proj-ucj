@@ -33,7 +33,18 @@ def update_excel(wb, all_phases, sheet_name):
     # Extraindo os dados das células para ordenar
     data_rows = []
     for row in ws.iter_rows(min_row=2, max_row=ws.max_row, min_col=1, max_col=len(headers), values_only=True):
-        data_rows.append(row)
+        # Removendo "R$" das células na coluna N e convertendo para número
+        cleaned_row = []
+        for col_num, cell in enumerate(row, 1):
+            if col_num == 14:  # Coluna N é a 14ª coluna
+                if isinstance(cell, str) and cell.startswith("R$"):
+                    cell = cell.replace("R$", "").strip()
+                try:
+                    cell = float(cell.replace(",", ".")) if isinstance(cell, str) else cell
+                except ValueError:
+                    pass
+            cleaned_row.append(cell)
+        data_rows.append(tuple(cleaned_row))
     
     # Ordenar os dados pela primeira coluna ("Criação do Card"), em ordem decrescente
     data_rows.sort(key=lambda x: datetime.strptime(x[0], '%d/%m/%Y') if x[0] else datetime.min, reverse=True)
