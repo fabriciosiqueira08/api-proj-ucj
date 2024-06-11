@@ -2,6 +2,7 @@ from FetchAllCards import fetch_all_cards
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 from UpdateExcel import update_excel
+from UpdateExcelExecução import update_excel_execução
 from openpyxl import Workbook, load_workbook
 from Definitions import PIPE_IDS, PIPE_TO_FILE
 import sys
@@ -29,6 +30,7 @@ def update_excel_files():
 
     update_functions = {
         'Café de Vendas': update_excel,
+        'Execução': update_excel_execução,
     }
 
     total_pipes = len(PIPE_TO_FILE)
