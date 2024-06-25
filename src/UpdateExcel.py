@@ -1,3 +1,4 @@
+import re
 from openpyxl.styles import Font, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 from ProcessPhases import process_phases
@@ -16,7 +17,7 @@ def update_excel(wb, all_phases, sheet_name):
         "Status conversão para proposta", "Data de Entrega da Proposta", "Valor oferecido do Projeto",
         "Valor da Hora do Projeto", "Status Orientação Proposta", "Data de Resposta do Cliente",
         "Resposta do Cliente", "Data de Assinatura do Contrato", "Preço Vendido",
-        "Preço da Hora Vendida", "Etiqueta Indicação", "Subcanal de Chegada - Indicação"
+        "Preço da Hora Vendida", "Etiqueta Indicação", "Subcanal de Chegada - Indicação", "Projeto é colaborativo?  "
     ]
 
     # Aplicando os cabeçalhos e seus estilos
@@ -45,15 +46,34 @@ def update_excel(wb, all_phases, sheet_name):
                     pass
             cleaned_row.append(cell)
         data_rows.append(tuple(cleaned_row))
-    
+
+    # Função para verificar se o valor da coluna N corresponde aos padrões especificados
+    def should_remove(value):
+        if isinstance(value, str):
+            patterns = [
+                r'^\d+\s*a\s*\d+$',  
+                r'^\d+\s*e\s*\d+$',  
+                r'^\d+,\d+$'         
+            ]
+            for pattern in patterns:
+                if re.match(pattern, value):
+                    return True
+        # Remover exatamente o valor "16,5"
+        if isinstance(value, str) and value.strip() == "16,5":
+            return True
+        return False
+
+    # Filtrando as linhas que não devem ser removidas
+    filtered_data_rows = [row for row in data_rows if not should_remove(row[13])]
+
     # Ordenar os dados pela primeira coluna ("Criação do Card"), em ordem decrescente
-    data_rows.sort(key=lambda x: datetime.strptime(x[0], '%d/%m/%Y') if x[0] else datetime.min, reverse=True)
+    filtered_data_rows.sort(key=lambda x: datetime.strptime(x[0], '%d/%m/%Y') if x[0] else datetime.min, reverse=True)
 
     # Limpar as linhas antigas
     ws.delete_rows(2, ws.max_row)
 
     # Escrever os dados ordenados de volta na planilha
-    for row in data_rows:
+    for row in filtered_data_rows:
         ws.append(row)
 
     # Ajuste das colunas
